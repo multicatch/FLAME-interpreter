@@ -6,6 +6,8 @@ set(CMAKE_C_STANDARD 99)
 file(GLOB SOURCES
         parse/*.h
         parse/*.c
+        symbols/*.h
+        symbols/*.c
         evaluator/*.h
         evaluator/*.c
         )

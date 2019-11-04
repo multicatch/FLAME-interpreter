@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parse/parse.h"
+#include "evaluator/evaluator.h"
 
 int main() {
     int current_length = 0;
@@ -18,7 +19,8 @@ int main() {
         line = statement;
     }
 
-    cst_node_t *pNode = parse(line);
+    cst_node_t *tree = parse(line);
+    evaluate(tree);
 
     return 0;
 }

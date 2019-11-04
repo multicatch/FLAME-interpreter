@@ -3,14 +3,14 @@
 
 #include <stdlib.h>
 
-enum ConcreteSyntaxType {
+typedef enum concrete_syntax_type {
     CST_NONE, CST_OP, CST_EXP, CST_NUM, CST_STR
-};
+} concrete_syntax_t;
 
 typedef struct cst_node {
     struct cst_node *parent;
 
-    enum ConcreteSyntaxType type;
+    concrete_syntax_t type;
     char *value;
 
     struct cst_node **children;

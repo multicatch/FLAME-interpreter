@@ -27,7 +27,7 @@ struct cst_node *cst_t_remove_last(struct cst_node *self) {
     return self->children[self->children_length];
 }
 
-cst_node_t *create_cst_node(enum ConcreteSyntaxType type) {
+cst_node_t *create_cst_node(concrete_syntax_t type) {
     cst_node_t *result = malloc(sizeof(cst_node_t));
     result->parent = NULL;
     result->value = NULL;
@@ -51,7 +51,7 @@ int is_buf_complete(char *buffer, char c) {
     return strlen(buffer) > 0 && is_blank(c);
 }
 
-enum ConcreteSyntaxType type_of(char *raw) {
+concrete_syntax_t type_of(char *raw) {
     if (is_blank(raw[0])) {
         return CST_NONE;
     }
@@ -108,7 +108,7 @@ cst_node_t *parse(char *s_raw) {
                 return NULL;
             }
         } else if (is_buf_complete(buffer, c) && type_of(buffer) != CST_NONE) {
-            enum ConcreteSyntaxType type = type_of(buffer);
+            concrete_syntax_t type = type_of(buffer);
 
             cst_node_t *current_parent = current;
 
@@ -134,7 +134,6 @@ cst_node_t *parse(char *s_raw) {
             buffer_length = 1;
             buffer = malloc(buffer_length * sizeof(char));
             buffer[0] = '\0';
-
         } else if (!is_blank(c)) {
             char *tmp = malloc((buffer_length + 1) * sizeof(char));
             strcpy(tmp, buffer);
