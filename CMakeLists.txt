@@ -4,12 +4,10 @@ project(interpreter C)
 set(CMAKE_C_STANDARD 99)
 
 file(GLOB SOURCES
-        statements/*.h
-        statements/*.c
-        symbols/*.h
-        symbols/*.c
+        parse/*.h
+        parse/*.c
         evaluator/*.h
         evaluator/*.c
         )
 
-add_executable(interpreter main.c ast.h ast.c ${SOURCES})
+add_executable(interpreter main.c ${SOURCES})

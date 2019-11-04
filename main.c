@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast.h"
-#include "evaluator/evaluator.h"
+#include "parse/parse.h"
 
 int main() {
     int current_length = 0;
@@ -19,8 +18,7 @@ int main() {
         line = statement;
     }
 
-    ast_node_t *result = parse(line, current_length);
-    evaluate(result);
+    cst_node_t *pNode = parse(line);
 
     return 0;
 }
