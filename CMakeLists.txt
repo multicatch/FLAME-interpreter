@@ -10,6 +10,8 @@ file(GLOB SOURCES
         symbols/*.c
         evaluator/*.h
         evaluator/*.c
+        stdlib/*.h
+        stdlib/*.c
         )
 
 add_executable(interpreter main.c ${SOURCES})

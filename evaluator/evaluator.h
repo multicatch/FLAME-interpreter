@@ -4,6 +4,7 @@
 #include "../parse/parse.h"
 #include "../symbols/literal.h"
 
-literal_t *evaluate(cst_node_t *);
+void init_evaluator();
+literal_t *evaluate(cst_node_t *, literal_t *);
 
 #endif //INTERPRETER_EVALUATOR_H

@@ -11,6 +11,6 @@ typedef struct operator {
     literal_t *(*evaluate)(struct operator *, literal_t *, cst_node_t *);
 } operator_t;
 
-operator_t *get_operator(char *);
+operator_t *create_operator(const char *);
 
 #endif //INTERPRETER_OPERATOR_H

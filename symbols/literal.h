@@ -19,6 +19,7 @@ typedef struct literal {
     void (*set_string)(struct literal *, char *);
 } literal_t;
 
+literal_t *lt_clone(literal_t *);
 literal_t *create_literal(literal_type_t);
 
 #endif //INTERPRETER_LITERAL_H
