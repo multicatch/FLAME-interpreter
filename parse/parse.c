@@ -47,8 +47,18 @@ int is_numeric(char c) {
     return c >= '0' && c <= '9';
 }
 
+int is_buf_string(char *buffer) {
+    return strlen(buffer) > 0 && buffer[0] == '"';
+}
+
 int is_buf_complete(char *buffer, char c) {
-    return strlen(buffer) > 0 && is_blank(c);
+    size_t buf_length = strlen(buffer);
+
+    if (is_buf_string(buffer)) {
+        return buffer[buf_length - 1] == '"' && is_blank(c);
+    } else {
+        return buf_length > 0 && is_blank(c);
+    }
 }
 
 concrete_syntax_t type_of(char *raw) {
@@ -134,7 +144,7 @@ cst_node_t *parse(char *s_raw) {
             buffer_length = 1;
             buffer = malloc(buffer_length * sizeof(char));
             buffer[0] = '\0';
-        } else if (!is_blank(c)) {
+        } else if (!is_blank(c) || is_buf_string(buffer)) {
             char *tmp = malloc((buffer_length + 1) * sizeof(char));
             strcpy(tmp, buffer);
             tmp[buffer_length - 1] = c;

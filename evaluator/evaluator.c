@@ -25,7 +25,7 @@ literal_t *convert_literal(cst_node_t *node) {
         }
     }
 
-    printf("Warning: %s not recognized as any literal", node->value);
+    printf("Warning: \"%s\" not recognized as any literal", node->value);
     return create_literal(LT_LONG);
 }
 
@@ -45,11 +45,15 @@ literal_t *evaluate(cst_node_t *root) {
             char *operator_identifier = root->children[i]->value;
             operator_t *operator = get_operator(operator_identifier);
             i += 1;
-            literal_t *old_result = result;
-            result = operator->evaluate(operator, result, root->children[i]);
-            free(old_result);
+            if (operator == NULL) {
+                printf("Error: \"%s\" is an unknown symbol\n", operator_identifier);
+            } else {
+                literal_t *old_result = result;
+                result = operator->evaluate(operator, result, root->children[i]);
+                free(old_result);
+            }
         }
     }
-    
+
     return result;
 }
