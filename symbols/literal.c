@@ -18,6 +18,10 @@ literal_t *lt_clone(literal_t *result) {
     return new_result;
 }
 
+int literal_t_is_same_type(struct literal *self, struct literal *other) {
+    return self != NULL && other != NULL && self->type == other->type;
+}
+
 literal_t *create_literal(literal_type_t type) {
     literal_t *result = malloc(sizeof(literal_t));
     result->type = type;
@@ -27,6 +31,7 @@ literal_t *create_literal(literal_type_t type) {
     result->string_literal = malloc((result->string_length + 1) * sizeof(char));
     result->string_literal[0] = '\0';
     result->set_string = literal_t_set_string;
+    result->is_same_type = literal_t_is_same_type;
 
     return result;
 }

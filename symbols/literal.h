@@ -17,6 +17,7 @@ typedef struct literal {
     literal_type_t type;
 
     void (*set_string)(struct literal *, char *);
+    int (*is_same_type)(struct literal *, struct literal *);
 } literal_t;
 
 literal_t *lt_clone(literal_t *);

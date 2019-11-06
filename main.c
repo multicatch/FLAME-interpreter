@@ -9,12 +9,12 @@ int main() {
     literal_t *result = create_literal(LT_LONG);
 
     while (result != NULL) {
-        int current_length = 0;
-        char *line = malloc((size_t) current_length);
+        size_t current_length = 0;
+        char *line = malloc(current_length);
         int c;
 
         while ((c = getchar()) != '\n') {
-            char *statement = malloc((size_t) current_length + 1);
+            char *statement = malloc(current_length + 2);
             strcpy(statement, line);
             statement[current_length] = (char) c;
             statement[current_length + 1] = '\0';
@@ -24,7 +24,9 @@ int main() {
         }
 
         cst_node_t *tree = parse(line);
-        result = evaluate(tree, result);
+        literal_t *new_result = evaluate(tree, result);
+        free(result);
+        result = new_result;
     }
 
     return 0;

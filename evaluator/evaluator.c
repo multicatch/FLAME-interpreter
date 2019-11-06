@@ -39,34 +39,46 @@ void init_evaluator() {
 }
 
 literal_t *evaluate(cst_node_t *root, literal_t *acc) {
-    literal_t *result = acc;
+    literal_t *result = lt_clone(acc);
+    cst_node_t *node = clone_cst(root);
+
+    if (node->children_length == 0 && node->type != CST_EXP) {
+        node->add_child(node, root);
+    }
     
-    for (size_t i = 0; i < root->children_length; i++) {
+    for (size_t i = 0; i < node->children_length; i++) {
         literal_t *old_result = result;
-        if (root->children[i]->type == CST_STR || root->children[i]->type == CST_NUM) {
-            result = convert_literal(root->children[i], old_result);
+        if (node->children[i]->type == CST_STR || node->children[i]->type == CST_NUM) {
+            result = convert_literal(node->children[i], old_result);
         }
-        if (root->children[i]->type == CST_EXP) {
-            result = evaluate(root->children[i], old_result);
+        if (node->children[i]->type == CST_EXP) {
+            result = evaluate(node->children[i], old_result);
         }
-        if (root->children[i]->type == CST_OP) {
-            char *operator_identifier = root->children[i]->value;
+        if (node->children[i]->type == CST_OP) {
+            char *operator_identifier = node->children[i]->value;
             repository_entry_t *entry = get_operator_from_repo(operator_identifier);
-            i += 1;
             if (entry == NULL) {
-                insert_into_repo(operator_identifier, root->children[i]);
+                i += 1;
+                // TODO: Seek arguments until "="
+                cst_node_t *argument = node->children[i];
+                insert_into_repo(operator_identifier, argument);
             } else {
                 operator_t *op = entry->op;
-                result = op->evaluate(op, old_result, root->children[i]);
+                cst_node_t **arguments = malloc(op->arguments_count * sizeof(cst_node_t*));
+                for (size_t j = 0; j < op->arguments_count; j++) {
+                    arguments[j] = node->children[i + j + 1];
+                }
+                i += op->arguments_count;
+                result = op->evaluate(op, old_result, arguments);
             }
         }
     }
 
+    free_cst(node);
+
     if (result != NULL) {
-        literal_t *new_result = lt_clone(result);
-        free(result);
-        return new_result;
+        return result;
     } else {
-        return create_literal(LT_LONG);
+        return NULL;
     }
 }
