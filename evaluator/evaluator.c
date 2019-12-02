@@ -38,6 +38,12 @@ void init_evaluator() {
     insert_stdlib_using(insert_operator_into_repo);
 }
 
+int is_equals(cst_node_t *node) {
+    return node != NULL && node->type == CST_OP && strcmp(node->value, "=") == 0;
+}
+
+
+// TODO: refactor
 literal_t *evaluate(cst_node_t *root, literal_t *acc) {
     literal_t *result = lt_clone(acc);
     cst_node_t *node = clone_cst(root);
@@ -58,10 +64,21 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
             char *operator_identifier = node->children[i]->value;
             repository_entry_t *entry = get_operator_from_repo(operator_identifier);
             if (entry == NULL) {
-                i += 1;
-                // TODO: Seek arguments until "="
-                cst_node_t *argument = node->children[i];
-                insert_into_repo(operator_identifier, argument);
+                size_t arguments_count = 0;
+                cst_node_t **arguments = malloc(arguments_count * sizeof(cst_node_t*));
+                for (size_t j = 1; i + j < node->children_length && !is_equals(node->children[i + j]); j++) {
+                    arguments_count += 1;
+                    cst_node_t **tmp = malloc(arguments_count * sizeof(cst_node_t*));
+                    for (size_t old_arg = 0; old_arg < arguments_count - 1; old_arg++) {
+                        tmp[old_arg] = arguments[old_arg];
+                    }
+                    tmp[arguments_count - 1] = node->children[i + j];
+                    free(arguments);
+                    arguments = tmp;
+                }
+                i += arguments_count + 2;
+                cst_node_t *representation = node->children[i];
+                insert_into_repo(operator_identifier, arguments, arguments_count, representation);
             } else {
                 operator_t *op = entry->op;
                 cst_node_t **arguments = malloc(op->arguments_count * sizeof(cst_node_t*));

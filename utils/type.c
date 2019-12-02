@@ -41,6 +41,15 @@ literal_t *cast(literal_t *literal, literal_type_t type) {
         return result;
     }
 
-    // TODO: Cast into string
+    if (literal->type == LT_LONG && type == LT_STRING) {
+        result->string_literal = malloc(50 * sizeof(char));
+        snprintf(result->string_literal, 50, "%lld", result->long_value);
+    }
+
+    if (literal->type == LT_DOUBLE && type == LT_STRING) {
+        result->string_literal = malloc(50 * sizeof(char));
+        snprintf(result->string_literal, 50, "%Lf", result->double_value);
+    }
+
     return result;
 }

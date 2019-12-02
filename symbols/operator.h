@@ -8,6 +8,7 @@ typedef struct operator {
     char *identifier;
 
     cst_node_t *representation;
+    cst_node_t **arguments;
     size_t arguments_count;
     literal_t *(*evaluate)(struct operator *, literal_t *, cst_node_t **);
 } operator_t;

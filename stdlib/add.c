@@ -14,10 +14,10 @@ literal_t *lt_add(literal_t *a, literal_t *b) {
     result->double_value += casted_b->double_value;
 
     char *original = result->string_literal;
-    result->string_literal = malloc((a->string_length + b->string_length) * sizeof(char));
+    result->string_literal = malloc((a->string_length + casted_b->string_length) * sizeof(char));
     strcpy(result->string_literal, original);
-    strcpy(result->string_literal + a->string_length, b->string_literal);
-    result->string_length = a->string_length + b->string_length;
+    strcpy(result->string_literal + a->string_length, casted_b->string_literal);
+    result->string_length = a->string_length + casted_b->string_length;
 
     return result;
 }

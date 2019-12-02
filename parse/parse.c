@@ -119,6 +119,10 @@ cst_node_t *parse(char *s_raw) {
             buffer_length = 1;
             buffer = malloc(buffer_length * sizeof(char));
             buffer[0] = '\0';
+
+            if (strcmp(node->value, "=") == 0) {
+                current = start_subexp(current);
+            }
         } else if (!is_blank(c) || is_buf_string(buffer)) {
             char *tmp = malloc((buffer_length + 1) * sizeof(char));
             strcpy(tmp, buffer);

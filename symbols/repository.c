@@ -1,6 +1,7 @@
 #include "repository.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 const size_t OP_T_SLICES = 256;
 repository_entry_t **op_t_repository;
@@ -48,25 +49,33 @@ repository_entry_t *get_operator_from_repo(const char *identifier) {
     return NULL;
 }
 
-void insert_into_repo(const char *identifier, cst_node_t *representation) {
+void
+insert_into_repo(const char *identifier, cst_node_t **arguments, size_t argument_count, cst_node_t *representation) {
     operator_t *result = create_operator(identifier);
     result->representation = representation;
+    result->arguments_count = argument_count;
+    result->arguments = arguments;
 
     insert_operator_into_repo(result);
 }
 
 void insert_operator_into_repo(operator_t *operator) {
-    repository_entry_t *entry = create_repository_entry(operator);
-
-    unsigned long slot_index = djb2(operator->identifier) % OP_T_SLICES;
-    if (op_t_repository[slot_index] == NULL) {
-        op_t_repository[slot_index] = entry;
+    repository_entry_t *entry = get_operator_from_repo(operator->identifier);
+    if (entry != NULL) {
+        entry->op = operator;
     } else {
-        repository_entry_t *last = op_t_repository[slot_index];
-        while (last->next != NULL) {
-            last = last->next;
+        entry = create_repository_entry(operator);
+
+        unsigned long slot_index = djb2(operator->identifier) % OP_T_SLICES;
+        if (op_t_repository[slot_index] == NULL) {
+            op_t_repository[slot_index] = entry;
+        } else {
+            repository_entry_t *last = op_t_repository[slot_index];
+            while (last->next != NULL) {
+                last = last->next;
+            }
+            last->next = entry;
+            entry->previous = last;
         }
-        last->next = entry;
-        entry->previous = last;
     }
 }
