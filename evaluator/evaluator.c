@@ -95,11 +95,11 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
                 for (size_t j = 0; j < op->arguments_count; j++) {
                     arguments[j] = node->children[i + j + 1];
                 }
-                i += op->arguments_count;
-                if (node->children_length > (i + 1) && is_equals(node->children[i + 1])) {
+                if (node->children_length > (i + op->arguments_count + 1) && is_equals(node->children[i + op->arguments_count + 1])) {
                     warn(MSG_REDECLARATION, operator_identifier);
                     i = collect_and_define(operator_identifier, node, i);
                 } else {
+                    i += op->arguments_count;
                     result = op->evaluate(op, old_result, arguments);
                 }
             }
