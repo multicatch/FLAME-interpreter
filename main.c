@@ -3,10 +3,12 @@
 #include <string.h>
 #include "parse/parse.h"
 #include "evaluator/evaluator.h"
+#include "utils/logger.h"
 
 int main() {
     init_evaluator();
     literal_t *result = create_literal(LT_LONG);
+    size_t line_number = 1;
 
     while (result != NULL) {
         size_t current_length = 0;
@@ -23,10 +25,12 @@ int main() {
             line = statement;
         }
 
+        set_line("stdin", line_number);
         cst_node_t *tree = parse(line);
         literal_t *new_result = evaluate(tree, result);
         free(result);
         result = new_result;
+        line_number += 1;
     }
 
     return 0;

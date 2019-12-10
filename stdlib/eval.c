@@ -2,6 +2,7 @@
 
 #include "../evaluator/evaluator.h"
 #include "../utils/type.h"
+#include "../utils/logger.h"
 #include <stdio.h>
 
 literal_t *op_t_eval_evaluate(struct operator *self, literal_t *acc, cst_node_t **argument) {
@@ -14,6 +15,7 @@ literal_t *op_t_eval_evaluate(struct operator *self, literal_t *acc, cst_node_t 
     FILE *file = fopen(file_path->string_literal, "r");
     char *line = NULL;
     size_t len = 0;
+    size_t line_number = 1;
 
     if (file == NULL) {
         printf("ERROR: Cannot read %s\n", file_path->string_literal);
@@ -21,12 +23,14 @@ literal_t *op_t_eval_evaluate(struct operator *self, literal_t *acc, cst_node_t 
     }
 
     while ((getline(&line, &len, file)) != -1) {
+        set_line(file_path->string_literal, line_number);
         cst_node_t *tree = parse(line);
         literal_t *new_result = evaluate(tree, result);
         free(result);
         result = new_result;
         free(line);
         line = NULL;
+        line_number += 1;
     }
 
     fclose(file);

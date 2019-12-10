@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "../symbols/repository.h"
 #include "../stdlib/stdlib.h"
+#include "../utils/logger.h"
 
 literal_t *convert_literal(cst_node_t *node, literal_t *acc) {
     if (node->type == CST_STR) {
@@ -29,7 +30,7 @@ literal_t *convert_literal(cst_node_t *node, literal_t *acc) {
         }
     }
 
-    printf("WARNING: \"%s\" not recognized as any literal", node->value);
+    warn(MSG_WRONG_TYPE, node->value);
     return create_literal(LT_LONG);
 }
 
@@ -42,6 +43,29 @@ int is_equals(cst_node_t *node) {
     return node != NULL && node->type == CST_OP && strcmp(node->value, "=") == 0;
 }
 
+size_t collect_and_define(char *operator_identifier, cst_node_t *node, size_t current_child_i) {
+    size_t arguments_count = 0;
+    cst_node_t **arguments = malloc(arguments_count * sizeof(cst_node_t *));
+    for (size_t j = 1; current_child_i + j < node->children_length && !is_equals(node->children[current_child_i + j]); j++) {
+        arguments_count += 1;
+        cst_node_t **tmp = malloc(arguments_count * sizeof(cst_node_t *));
+        for (size_t old_arg = 0; old_arg < arguments_count - 1; old_arg++) {
+            tmp[old_arg] = arguments[old_arg];
+        }
+        tmp[arguments_count - 1] = node->children[current_child_i + j];
+        free(arguments);
+        arguments = tmp;
+    }
+    current_child_i += arguments_count + 2;
+    if (!is_equals(node->children[current_child_i - 1])) {
+        warn(MSG_UNDECLARED, operator_identifier);
+    } else {
+        cst_node_t *representation = node->children[current_child_i];
+        insert_into_repo(operator_identifier, arguments, arguments_count, representation);
+    }
+
+    return current_child_i;
+}
 
 // TODO: refactor
 literal_t *evaluate(cst_node_t *root, literal_t *acc) {
@@ -64,25 +88,7 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
             char *operator_identifier = node->children[i]->value;
             repository_entry_t *entry = get_operator_from_repo(operator_identifier);
             if (entry == NULL) {
-                size_t arguments_count = 0;
-                cst_node_t **arguments = malloc(arguments_count * sizeof(cst_node_t *));
-                for (size_t j = 1; i + j < node->children_length && !is_equals(node->children[i + j]); j++) {
-                    arguments_count += 1;
-                    cst_node_t **tmp = malloc(arguments_count * sizeof(cst_node_t *));
-                    for (size_t old_arg = 0; old_arg < arguments_count - 1; old_arg++) {
-                        tmp[old_arg] = arguments[old_arg];
-                    }
-                    tmp[arguments_count - 1] = node->children[i + j];
-                    free(arguments);
-                    arguments = tmp;
-                }
-                i += arguments_count + 2;
-                if (!is_equals(node->children[i - 1])) {
-                    printf("Warning: Operator \"%s\" is undefined and will be ignored.\n", operator_identifier);
-                } else {
-                    cst_node_t *representation = node->children[i];
-                    insert_into_repo(operator_identifier, arguments, arguments_count, representation);
-                }
+                i = collect_and_define(operator_identifier, node, i);
             } else {
                 operator_t *op = entry->op;
                 cst_node_t **arguments = malloc(op->arguments_count * sizeof(cst_node_t*));
@@ -90,7 +96,12 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
                     arguments[j] = node->children[i + j + 1];
                 }
                 i += op->arguments_count;
-                result = op->evaluate(op, old_result, arguments);
+                if (node->children_length > (i + 1) && is_equals(node->children[i + 1])) {
+                    warn(MSG_REDECLARATION, operator_identifier);
+                    i = collect_and_define(operator_identifier, node, i);
+                } else {
+                    result = op->evaluate(op, old_result, arguments);
+                }
             }
         }
     }
