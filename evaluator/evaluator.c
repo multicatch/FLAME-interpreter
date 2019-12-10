@@ -29,7 +29,7 @@ literal_t *convert_literal(cst_node_t *node, literal_t *acc) {
         }
     }
 
-    printf("Warning: \"%s\" not recognized as any literal", node->value);
+    printf("WARNING: \"%s\" not recognized as any literal", node->value);
     return create_literal(LT_LONG);
 }
 
@@ -65,10 +65,10 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
             repository_entry_t *entry = get_operator_from_repo(operator_identifier);
             if (entry == NULL) {
                 size_t arguments_count = 0;
-                cst_node_t **arguments = malloc(arguments_count * sizeof(cst_node_t*));
+                cst_node_t **arguments = malloc(arguments_count * sizeof(cst_node_t *));
                 for (size_t j = 1; i + j < node->children_length && !is_equals(node->children[i + j]); j++) {
                     arguments_count += 1;
-                    cst_node_t **tmp = malloc(arguments_count * sizeof(cst_node_t*));
+                    cst_node_t **tmp = malloc(arguments_count * sizeof(cst_node_t *));
                     for (size_t old_arg = 0; old_arg < arguments_count - 1; old_arg++) {
                         tmp[old_arg] = arguments[old_arg];
                     }
@@ -77,8 +77,12 @@ literal_t *evaluate(cst_node_t *root, literal_t *acc) {
                     arguments = tmp;
                 }
                 i += arguments_count + 2;
-                cst_node_t *representation = node->children[i];
-                insert_into_repo(operator_identifier, arguments, arguments_count, representation);
+                if (!is_equals(node->children[i - 1])) {
+                    printf("Warning: Operator \"%s\" is undefined and will be ignored.\n", operator_identifier);
+                } else {
+                    cst_node_t *representation = node->children[i];
+                    insert_into_repo(operator_identifier, arguments, arguments_count, representation);
+                }
             } else {
                 operator_t *op = entry->op;
                 cst_node_t **arguments = malloc(op->arguments_count * sizeof(cst_node_t*));
