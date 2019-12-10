@@ -1,7 +1,5 @@
 #include "clear.h"
 
-#include "../symbols/operator.h"
-#include "../evaluator/evaluator.h"
 #include "print.h"
 #include <stdio.h>
 

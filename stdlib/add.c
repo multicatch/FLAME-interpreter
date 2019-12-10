@@ -1,6 +1,5 @@
 #include "add.h"
 
-#include "../symbols/operator.h"
 #include "../evaluator/evaluator.h"
 #include "../utils/type.h"
 #include <stdio.h>
